@@ -32,7 +32,7 @@ package main
 
 import (
 	"github.com/sirupsen/logrus"
-	"github.com/thevan4/logrus-wrapper"
+	logger "github.com/thevan4/logrus-wrapper"
 )
 
 func main() {
@@ -64,7 +64,7 @@ import (
 	"net/http"
 
 	"github.com/sirupsen/logrus"
-	"github.com/thevan4/logrus-wrapper"
+	logger "github.com/thevan4/logrus-wrapper"
 )
 
 func main() {
