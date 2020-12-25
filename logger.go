@@ -42,13 +42,12 @@ func NewLogrusLogger(logger *Logger) (*logrus.Logger, error) {
 		return nil, err
 	}
 
-	logLevel, err := logrus.ParseLevel(logger.Level)
+	err = logger.ApplyLoggerLevel(logrusLog)
 	if err != nil {
 		return nil, err
 	}
-	logrusLog.SetLevel(logLevel)
 
-	err = logger.ApplyLogFormatter(logrusLog)
+	err = logger.ApplyLogFormatter(logrusLog, logger.LogEventLocation)
 	if err != nil {
 		return nil, err
 	}
@@ -86,11 +85,12 @@ func (logger *Logger) ApplyLoggerOut(logrusLog *logrus.Logger) error {
 }
 
 // ApplyLogFormatter set log format
-func (logger *Logger) ApplyLogFormatter(logrusLog *logrus.Logger) error {
+func (logger *Logger) ApplyLogFormatter(logrusLog *logrus.Logger,
+	logEventLocation bool) error {
 	switch logger.Formatter {
 	case "json":
 		jsonFormatter := &logrus.JSONFormatter{}
-		if logger.LogEventLocation {
+		if logEventLocation {
 			logrusLog.SetReportCaller(true)
 			jsonFormatter.CallerPrettyfier = func(f *runtime.Frame) (string, string) {
 				filename := path.Base(f.File)
@@ -104,7 +104,7 @@ func (logger *Logger) ApplyLogFormatter(logrusLog *logrus.Logger) error {
 			FullTimestamp:    true,
 			QuoteEmptyFields: true,
 		}
-		if logger.LogEventLocation {
+		if logEventLocation {
 			logrusLog.SetReportCaller(true)
 			textFormatter.CallerPrettyfier = func(f *runtime.Frame) (string, string) {
 				filename := path.Base(f.File)
@@ -115,5 +115,14 @@ func (logger *Logger) ApplyLogFormatter(logrusLog *logrus.Logger) error {
 	default:
 		return fmt.Errorf("uknown log format: %v", logger.Formatter)
 	}
+	return nil
+}
+
+func (logger *Logger) ApplyLoggerLevel(logrusLog *logrus.Logger) error {
+	logLevel, err := logrus.ParseLevel(logger.Level)
+	if err != nil {
+		return err
+	}
+	logrusLog.SetLevel(logLevel)
 	return nil
 }
